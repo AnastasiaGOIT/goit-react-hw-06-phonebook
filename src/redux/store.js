@@ -1,9 +1,31 @@
-// import { configureStore } from '@reduxjs/toolkit';
+import { configureStore } from '@reduxjs/toolkit';
 import { reducer } from './reducer';
+import {
+  persistStore,
+  persistReducer,
+  FLUSH,
+  REHYDRATE,
+  PAUSE,
+  PERSIST,
+  PURGE,
+  REGISTER,
+} from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
 
 // export const store = configureStore({ reducer });
-import { createStore } from 'redux';
+const persistConfig = {
+  key: 'contacts',
+  storage,
+};
+const persistedReducer = persistReducer(persistConfig, reducer);
 
-export const store = createStore(reducer);
-
-// store.dispatch({ type: 'addContact', payload: '' });
+export const store = configureStore({
+  reducer: persistedReducer,
+  middleware: getDefaultMiddleware =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+      },
+    }),
+});
+export const persistor = persistStore(store);

@@ -1,4 +1,12 @@
 import { useDispatch, useSelector } from 'react-redux';
+import {
+  onInputChangeNameAction,
+  resetNameAction,
+} from '../../redux/name/nameSlice';
+import {
+  onInputChangeNumberAction,
+  resetNumberAction,
+} from '../../redux/number/numberSlice';
 import css from './ContactForm.module.css';
 
 export const ContactForm = ({ addContact }) => {
@@ -8,20 +16,20 @@ export const ContactForm = ({ addContact }) => {
 
   const onInputChangeName = ({ target }) => {
     if (target.name === 'name') {
-      dispatch({ type: 'onInputChangeName', payload: target.value });
+      dispatch(onInputChangeNameAction(target.value));
     }
   };
 
   const onInputChangeNumber = ({ target }) => {
     if (target.name === 'number') {
-      dispatch({ type: 'onInputChangeNumber', payload: target.value });
+      dispatch(onInputChangeNumberAction(target.value));
     }
   };
   const handleSubmit = e => {
     e.preventDefault();
     addContact({ name, number });
-    dispatch({ type: 'resetName', payload: '' });
-    dispatch({ type: 'resetNumber', payload: '' });
+    dispatch(resetNameAction());
+    dispatch(resetNumberAction());
   };
 
   return (
