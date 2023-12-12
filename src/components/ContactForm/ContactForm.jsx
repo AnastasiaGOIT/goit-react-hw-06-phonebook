@@ -1,35 +1,49 @@
+import { nanoid } from '@reduxjs/toolkit';
+import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  onInputChangeNameAction,
-  resetNameAction,
-} from '../../redux/name/nameSlice';
-import {
-  onInputChangeNumberAction,
-  resetNumberAction,
-} from '../../redux/number/numberSlice';
+import { getContacts } from '../../redux/selector';
+import { addContactAction } from '../../redux/contacts/contactSlice';
 import css from './ContactForm.module.css';
 
-export const ContactForm = ({ addContact }) => {
-  const name = useSelector(state => state.name.name);
-  const number = useSelector(state => state.number.number);
+export const ContactForm = () => {
+  const { contacts } = useSelector(getContacts);
   const dispatch = useDispatch();
 
-  const onInputChangeName = ({ target }) => {
+  const [name, setName] = useState('');
+  const [number, setNumber] = useState('');
+
+  const onInputChange = ({ target }) => {
     if (target.name === 'name') {
-      dispatch(onInputChangeNameAction(target.value));
+      setName(target.value);
+    } else if (target.name === 'number') {
+      setNumber(target.value);
     }
   };
 
-  const onInputChangeNumber = ({ target }) => {
-    if (target.name === 'number') {
-      dispatch(onInputChangeNumberAction(target.value));
-    }
-  };
   const handleSubmit = e => {
     e.preventDefault();
     addContact({ name, number });
-    dispatch(resetNameAction());
-    dispatch(resetNumberAction());
+    setName('');
+    setNumber('');
+  };
+
+  const addContact = ({ name, number }) => {
+    const isExist = contacts.some(
+      contact => contact.name.toLowerCase() === name.toLowerCase()
+    );
+    if (isExist) {
+      alert(`${name} is already in contacts.`);
+      return;
+    }
+    const newContact = [
+      ...contacts,
+      {
+        id: nanoid(),
+        name,
+        number,
+      },
+    ];
+    dispatch(addContactAction(newContact));
   };
 
   return (
@@ -42,7 +56,7 @@ export const ContactForm = ({ addContact }) => {
         value={name}
         required
         pattern="^[a-zA-Zа-яА-Я]+(([' \-][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
-        onChange={onInputChangeName}
+        onChange={onInputChange}
       />
 
       <label htmlFor="number">Number</label>
@@ -53,7 +67,7 @@ export const ContactForm = ({ addContact }) => {
         pattern="\+?\d{1,4}?[ .\-\s]?\(?\d{1,3}?\)?[ .\-\s]?\d{1,4}[ .\-\s]?\d{1,4}[ .\-\s]?\d{1,9}"
         required
         value={number}
-        onChange={onInputChangeNumber}
+        onChange={onInputChange}
       />
 
       <button className={css.form__btn} type="submit">
